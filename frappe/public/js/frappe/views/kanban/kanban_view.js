@@ -136,10 +136,13 @@ frappe.views.KanbanView = class KanbanView extends frappe.views.ListView {
 		this.hide_card_layout = true;
 		this.hide_sort_selector = true;
 		super.setup_page();
+
+		this.page.disable_sidebar_toggle = true;
+		this.page.setup_sidebar_toggle();
 	}
 
 	setup_view() {
-		if (this.board.columns.length > 5) {
+		if (this.board.columns.filter((col) => col.status !== "Archived").length > 5) {
 			this.page.container.addClass("full-width");
 		}
 		this.setup_realtime_updates();
@@ -158,7 +161,7 @@ frappe.views.KanbanView = class KanbanView extends frappe.views.ListView {
 		});
 	}
 
-	render_list() {}
+	render_list() { }
 
 	on_filter_change() {
 		if (!this.board_perms.write) return; // avoid misleading ux
@@ -287,9 +290,8 @@ frappe.views.KanbanView.get_kanbans = function (doctype) {
 	return get_kanban_boards().then((kanban_boards) => {
 		if (kanban_boards) {
 			kanban_boards.forEach((board) => {
-				let route = `/app/${frappe.router.slug(board.reference_doctype)}/view/kanban/${
-					board.name
-				}`;
+				let route = `/app/${frappe.router.slug(board.reference_doctype)}/view/kanban/${board.name
+					}`;
 				kanbans.push({ name: board.name, route: route });
 			});
 		}
@@ -369,8 +371,8 @@ frappe.views.KanbanView.show_kanban_dialog = function (doctype) {
 					<div>
 						<p class="text-medium">
 						${__(
-							'No fields found that can be used as a Kanban Column. Use the Customize Form to add a Custom Field of type "Select".'
-						)}
+						'No fields found that can be used as a Kanban Column. Use the Customize Form to add a Custom Field of type "Select".'
+					)}
 						</p>
 					</div>
 				`,
